@@ -1,0 +1,51 @@
+name: Cuh KernelSU-Next Builder
+
+on:
+  workflow_dispatch: # Bu sayede derlemeyi manuel olarak butona basıp başlatabileceksiniz.
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Sistem Paketlerini Güncelle
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y bc bison build-essential ccache curl flex g++-multilib gcc-multilib git gnupg gperf lib32readline-dev lib32z1-dev liblz4-tool libncurses5-dev libsdl1.1-dev libssl-dev libxml2 libxml2-utils lzop pngcrush rsync schedtool squashfs-tools xsltproc zip zlib1g-dev
+
+    - name: Proton Clang Derleyicisini İndir
+      run: |
+        git clone --depth=1 https://github.com clang
+
+    - name: Cuh Kernel Kaynak Kodlarını Çek
+      run: |
+        git clone --depth=1 https://github.com -b 13 kernel
+        cd kernel
+        # Eğer varsa eski standart KernelSU dosyalarını temizle
+        rm -rf drivers/kernelsu
+
+    - name: KernelSU-Next Sürücülerini Enjekte Et
+      run: |
+        cd kernel
+        curl -LSs "https://githubusercontent.com" | bash -
+
+    - name: Çekirdeği (Kernel) Derle
+      run: |
+        cd kernel
+        export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
+        make O=out ARCH=arm64 ginkgo_defconfig
+        make -j$(nproc) O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android-
+
+    - name: AnyKernel3 ile Flaşlanabilir Zip Oluştur
+      run: |
+        git clone --depth=1 https://github.com AnyKernel
+        cp kernel/out/arch/arm64/boot/Image.gz-dtb AnyKernel/
+        cd AnyKernel
+        # Zip konfigürasyonunu ayarla
+        sed -i 's/do.devicecheck=1/do.devicecheck=0/g' anykernel.sh
+        zip -r9 ../Cuh-KernelSU-Next-Ginkgo.zip *
+
+    - name: Derlenen Kernel'ı İndirme Bağlantısı Yap
+      uses: actions/upload-artifact@v4
+      with:
+        name: Cuh-KernelSU-Next-Zip
+        path: Cuh-KernelSU-Next-Ginkgo.zip
