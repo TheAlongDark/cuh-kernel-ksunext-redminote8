@@ -14,18 +14,19 @@ jobs:
 
     - name: Proton Clang Derleyicisini İndir
       run: |
-        git clone --depth=1 https://github.com clang
+        git clone --depth=1 https://github.com/kdrag0n/proton-clang.git clang
 
     - name: Cuh Kernel Kaynak Kodlarını Çek
       run: |
-        git clone --depth=1 https://github.com -b 13 kernel
+        # DİKKAT: Cuh Kernel kaynağınız farklıysa aşağıdaki URL'yi kendi repo linkinizle değiştirin.
+        git clone --depth=1 https://github.com/tejas101k/kernel_xiaomi_ginkgo.git -b 13 kernel
         cd kernel
         rm -rf drivers/kernelsu
 
     - name: KernelSU-Next Sürücülerini Enjekte Et
       run: |
         cd kernel
-        curl -LSs "https://githubusercontent.com" | bash -
+        curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
 
     - name: Çekirdeği (Kernel) Derle
       run: |
@@ -36,8 +37,8 @@ jobs:
 
     - name: AnyKernel3 ile Flaşlanabilir Zip Oluştur
       run: |
-        git clone --depth=1 https://github.com AnyKernel
-        cp kernel/out/arch/arm64/boot/Image.gz-dtb AnyKernel/
+        git clone --depth=1 https://github.com/osm0sis/AnyKernel3.git AnyKernel
+        cp kernel/out/arch/arm64/boot/Image.gz-dtb AnyKernel/ || cp kernel/out/arch/arm64/boot/Image AnyKernel/
         cd AnyKernel
         sed -i 's/do.devicecheck=1/do.devicecheck=0/g' anykernel.sh
         zip -r9 ../Cuh-KernelSU-Next-Ginkgo.zip *
