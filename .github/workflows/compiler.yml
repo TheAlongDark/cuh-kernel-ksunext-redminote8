@@ -18,8 +18,8 @@ jobs:
 
     - name: Cuh Kernel Kaynak Kodlarını Çek
       run: |
-        # DİKKAT: Cuh Kernel kaynağınız farklıysa aşağıdaki URL'yi kendi repo linkinizle değiştirin.
-        git clone --depth=1 https://github.com/tejas101k/kernel_xiaomi_ginkgo.git -b 13 kernel
+        # Dal adı "13" yerine "thirteen" olarak düzeltildi
+        git clone --depth=1 https://github.com/tejas101k/kernel_xiaomi_ginkgo.git -b thirteen kernel
         cd kernel
         rm -rf drivers/kernelsu
 
