@@ -36,8 +36,8 @@ jobs:
         cd kernel
         export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
         make O=out ARCH=arm64 vendor/ginkgo-perf_defconfig
-        # LLVM_IAS=1 yeniden aktif edildi
-        make -j$(nproc) O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 CC=clang CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+        # CLANG_TRIPLE parametresi eksiksiz şekilde eklendi
+        make -j$(nproc) O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
         
     - name: AnyKernel3 ile Flaşlanabilir Zip Oluştur
       run: |
