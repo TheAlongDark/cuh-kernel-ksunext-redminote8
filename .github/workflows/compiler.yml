@@ -18,18 +18,22 @@ jobs:
 
     - name: Cuh Kernel Kaynak Kodlarını Çek ve Onar
       run: |
+        # Saf thirteen dalını çekiyoruz
         git clone --depth=1 https://github.com/tejas101k/kernel_xiaomi_ginkgo.git -b thirteen kernel
         cd kernel
+        
+        # Mevcut olası eski sürücüleri temizle
         rm -rf drivers/kernelsu
         
         # Uyumsuz polly ve mllvm bayraklarını temizle
         find . -type f -name "Makefile" -exec sed -i '/polly/Id' {} +
         find . -type f -name "Makefile" -exec sed -i '/-mllvm/d' {} +
         
-        # vDSO Gold Linker ThinLTO çakışmasını düzelt
+        # vDSO ld.gold çakışmasını önlemek için thinlto satırını kaldır
         sed -i 's/KBUILD_LDFLAGS += --thinlto-cache-dir/# KBUILD_LDFLAGS += --thinlto-cache-dir/g' arch/arm64/kernel/vdso/Makefile || true
+        sed -i '/thinlto-cache-dir/d' arch/arm64/kernel/vdso/Makefile || true
 
-    - name: KernelSU-Next Sürücülerini Enjekte Et
+    - name: KernelSU-Next Sürücülerini Sıfırdan Enjekte Et
       run: |
         cd kernel
         curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
