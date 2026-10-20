@@ -16,24 +16,13 @@ jobs:
       run: |
         git clone --depth=1 https://github.com/kdrag0n/proton-clang.git clang
 
-    - name: Cuh Kernel Kaynak Kodlarını Çek ve Onar
+    - name: Cuh Kernel Kaynak Kodlarını Çek
       run: |
-        # Saf thirteen dalını çekiyoruz
         git clone --depth=1 https://github.com/tejas101k/kernel_xiaomi_ginkgo.git -b thirteen kernel
         cd kernel
-        
-        # Mevcut olası eski sürücüleri temizle
         rm -rf drivers/kernelsu
-        
-        # Uyumsuz polly ve mllvm bayraklarını temizle
-        find . -type f -name "Makefile" -exec sed -i '/polly/Id' {} +
-        find . -type f -name "Makefile" -exec sed -i '/-mllvm/d' {} +
-        
-        # vDSO ld.gold çakışmasını önlemek için thinlto satırını kaldır
-        sed -i 's/KBUILD_LDFLAGS += --thinlto-cache-dir/# KBUILD_LDFLAGS += --thinlto-cache-dir/g' arch/arm64/kernel/vdso/Makefile || true
-        sed -i '/thinlto-cache-dir/d' arch/arm64/kernel/vdso/Makefile || true
 
-    - name: KernelSU-Next Sürücülerini Sıfırdan Enjekte Et
+    - name: KernelSU-Next Sürücülerini Enjekte Et
       run: |
         cd kernel
         curl -LSs "https://raw.githubusercontent.com/KernelSU-Next/KernelSU-Next/next/kernel/setup.sh" | bash -
@@ -43,7 +32,9 @@ jobs:
         cd kernel
         export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
         make O=out ARCH=arm64 vendor/ginkgo-perf_defconfig
-        make -j$(nproc) O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
+        
+        # vDSO ve Gold Linker uyumsuzluğunu (thinlto hatasını) ortadan kaldırmak için LTO'yu devre dışı bırakıp derliyoruz
+        make -j$(nproc) O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CONFIG_LTO_CLANG=n CONFIG_THINLTO=n
         
     - name: AnyKernel3 ile Flaşlanabilir Zip Oluştur
       run: |
