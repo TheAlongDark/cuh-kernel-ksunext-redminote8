@@ -16,11 +16,16 @@ jobs:
       run: |
         git clone --depth=1 https://github.com/kdrag0n/proton-clang.git clang
 
-    - name: Cuh Kernel Kaynak Kodlarını Çek
+    - name: Cuh Kernel Kaynak Kodlarını Çek ve Onar
       run: |
         git clone --depth=1 https://github.com/tejas101k/kernel_xiaomi_ginkgo.git -b thirteen kernel
         cd kernel
         rm -rf drivers/kernelsu
+        
+        # Proton Clang ile çakışan Polly optimizasyon argümanlarını Makefile'dan temizle
+        find . -type f -name "Makefile" -exec sed -i 's/-mllvm -polly//g' {} +
+        find . -type f -name "Makefile" -exec sed -i 's/--polly-position=early//g' {} +
+        find . -type f -name "Makefile" -exec sed -i 's/--polly-position=1//g' {} +
 
     - name: KernelSU-Next Sürücülerini Enjekte Et
       run: |
