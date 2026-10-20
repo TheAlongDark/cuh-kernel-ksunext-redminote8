@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - name: Sistem Paketlerini Güncelle
       run: |
@@ -18,7 +18,6 @@ jobs:
 
     - name: Cuh Kernel Kaynak Kodlarını Çek
       run: |
-        # Dal adı "13" yerine "thirteen" olarak düzeltildi
         git clone --depth=1 https://github.com/tejas101k/kernel_xiaomi_ginkgo.git -b thirteen kernel
         cd kernel
         rm -rf drivers/kernelsu
