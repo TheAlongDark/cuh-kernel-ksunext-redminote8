@@ -22,9 +22,12 @@ jobs:
         cd kernel
         rm -rf drivers/kernelsu
         
-        # Uyumsuz polly ve mllvm bayraklarını içeren TÜM satırları temizle
+        # Uyumsuz polly ve mllvm bayraklarını temizle
         find . -type f -name "Makefile" -exec sed -i '/polly/Id' {} +
         find . -type f -name "Makefile" -exec sed -i '/-mllvm/d' {} +
+        
+        # vDSO Gold Linker ThinLTO çakışmasını düzelt
+        sed -i 's/KBUILD_LDFLAGS += --thinlto-cache-dir/# KBUILD_LDFLAGS += --thinlto-cache-dir/g' arch/arm64/kernel/vdso/Makefile || true
 
     - name: KernelSU-Next Sürücülerini Enjekte Et
       run: |
@@ -36,7 +39,6 @@ jobs:
         cd kernel
         export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
         make O=out ARCH=arm64 vendor/ginkgo-perf_defconfig
-        # CLANG_TRIPLE parametresi eksiksiz şekilde eklendi
         make -j$(nproc) O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
         
     - name: AnyKernel3 ile Flaşlanabilir Zip Oluştur
