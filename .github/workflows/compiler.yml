@@ -31,7 +31,7 @@ jobs:
       run: |
         cd kernel
         export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
-        make O=out ARCH=arm64 ginkgo_defconfig
+        make O=out ARCH=arm64 vendor/ginkgo-perf_defconfig
         make -j$(nproc) O=out ARCH=arm64 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-android-
 
     - name: AnyKernel3 ile Flaşlanabilir Zip Oluştur
