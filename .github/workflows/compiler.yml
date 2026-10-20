@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-20.04
     steps:
     - name: Sistem Paketlerini Güncelle
       run: |
@@ -32,9 +32,7 @@ jobs:
         cd kernel
         export PATH=$GITHUB_WORKSPACE/clang/bin:$PATH
         make O=out ARCH=arm64 vendor/ginkgo-perf_defconfig
-        
-        # vDSO ve Gold Linker uyumsuzluğunu (thinlto hatasını) ortadan kaldırmak için LTO'yu devre dışı bırakıp derliyoruz
-        make -j$(nproc) O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi- CONFIG_LTO_CLANG=n CONFIG_THINLTO=n
+        make -j$(nproc) O=out ARCH=arm64 LLVM=1 LLVM_IAS=1 CC=clang CLANG_TRIPLE=aarch64-linux-gnu- CROSS_COMPILE=aarch64-linux-gnu- CROSS_COMPILE_ARM32=arm-linux-gnueabi-
         
     - name: AnyKernel3 ile Flaşlanabilir Zip Oluştur
       run: |
